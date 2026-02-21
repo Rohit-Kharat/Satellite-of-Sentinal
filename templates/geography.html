@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NDVI Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 90vh; width: 100%; }
+    </style>
+</head>
+<body>
+    <h2>NDVI Overlay on Map</h2>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([20, 78], 5); // Default to India-centered
+
+        // Add OpenStreetMap layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Fetch bounding box from Flask API
+        fetch("/ndvi_bounds")
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+                return;
+            }
+
+            // Extract bounds
+            var imageBounds = [[data.min_lat, data.min_lon], [data.max_lat, data.max_lon]];
+            
+            // Overlay NDVI image
+            L.imageOverlay('/ndvi', imageBounds).addTo(map);
+            
+            // Fit map to image bounds
+            map.fitBounds(imageBounds);
+        })
+        .catch(error => console.error("Error loading NDVI bounds:", error));
+    </script>
+</body>
+</html>
