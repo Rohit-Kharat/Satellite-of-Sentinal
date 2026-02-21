@@ -121,24 +121,30 @@ def inject_report_into_map(results, map_path="interactive_map.html"):
         position: fixed; 
         top: 10px; 
         left: 50px; 
-        width: 350px; 
-        height: 80%; 
-        background: rgba(255, 255, 255, 0.9); 
+        width: 380px; 
+        height: 85%; 
+        background: rgba(255, 255, 255, 0.95); 
         z-index: 1000; 
         overflow-y: auto; 
         padding: 15px; 
-        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
         border-radius: 8px;
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     ">
-        <h2 style="margin-top: 0;">🌿 Crop Health Report</h2>
+        <h2 style="margin-top: 0; color: #2e7d32;">🌿 Crop Health Report</h2>
+        
+        <div style="margin-bottom: 20px; text-align: center;">
+            <h4 style="margin-bottom: 5px;">NDVI Analysis Plot</h4>
+            <img src="ndvi_plot.png" alt="NDVI Plot" style="width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+
         <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
             <thead>
-                <tr style="background: #eee;">
-                    <th style="border: 1px solid #ccc; padding: 4px;">Zone</th>
-                    <th style="border: 1px solid #ccc; padding: 4px;">NDVI</th>
-                    <th style="border: 1px solid #ccc; padding: 4px;">Health</th>
-                    <th style="border: 1px solid #ccc; padding: 4px;">Suggestions</th>
+                <tr style="background: #2e7d32; color: white;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">Zone</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">NDVI</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Health</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Suggestions</th>
                 </tr>
             </thead>
             <tbody>
@@ -146,19 +152,23 @@ def inject_report_into_map(results, map_path="interactive_map.html"):
             </tbody>
         </table>
         <style>
-            .Bad {{ background-color: #ffd6d6; }}
-            .Moderate {{ background-color: #fff5cc; }}
-            .Good {{ background-color: #d6ffd6; }}
+            .Bad {{ background-color: #ffd6d6; color: #b71c1c; }}
+            .Moderate {{ background-color: #fff5cc; color: #f57f17; }}
+            .Good {{ background-color: #d6ffd6; color: #1b5e20; }}
+            #health-sidebar::-webkit-scrollbar {{ width: 8px; }}
+            #health-sidebar::-webkit-scrollbar-thumb {{ background: #ccc; border-radius: 4px; }}
         </style>
         <button onclick="document.getElementById('health-sidebar').style.display='none'" style="
-            margin-top: 10px;
-            padding: 5px 10px;
-            background: #f44336;
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: #d32f2f;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-        ">Close Sidebar</button>
+            font-weight: bold;
+        ">Close Dashboard</button>
     </div>
     """
 
@@ -172,10 +182,15 @@ def inject_report_into_map(results, map_path="interactive_map.html"):
         content = f.read()
 
     if "</body>" in content:
+        # Avoid duplicate sidebars if script runs multiple times
+        import re
+        if 'id="health-sidebar"' in content:
+            content = re.sub(r'<div id="health-sidebar".*?</div>', '', content, flags=re.DOTALL)
+        
         new_content = content.replace("</body>", sidebar_html + "\n</body>")
         with open(map_path, "w", encoding="utf-8") as f:
             f.write(new_content)
-        print(f"✅ Health report injected into {map_path}")
+        print(f"✅ Health report and Plot injected into {map_path}")
     else:
         print("❌ Error: Could not find </body> tag in HTML.")
 
@@ -185,10 +200,21 @@ def run_pipeline(image_path):
     ndvi = load_ndvi_image(image_path)
     results = analyze_zones(ndvi, model)
 
+    # Save NDVI plot for the sidebar
+    plt.figure(figsize=(6, 4))
+    plt.imshow(ndvi, cmap='YlGn')
+    plt.title("NDVI Model Visualization")
+    plt.colorbar(label="NDVI")
+    plt.tight_layout()
+    plt.savefig("ndvi_plot.png")
+    plt.close()
+    print("📈 NDVI plot saved as ndvi_plot.png")
+
     # Instead of generating a new report, inject into interactive_map.html
     inject_report_into_map(results)
 
     print("\n📊 Zone-wise Crop Health Prediction complete.")
+
 
 if __name__ == "__main__":
     tif_files = sorted(glob.glob("ndvi_*.tif"), reverse=True)

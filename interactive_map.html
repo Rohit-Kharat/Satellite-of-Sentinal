@@ -27,7 +27,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_7ceafd19b92b8818d4d9556c8067cdd7 {
+                #map_e21899c942b5c46308b0c3d07b87da9e {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -77,38 +77,44 @@
     });
 </script>
     
-            <div class="folium-map" id="map_7ceafd19b92b8818d4d9556c8067cdd7" ></div>
+            <div class="folium-map" id="map_e21899c942b5c46308b0c3d07b87da9e" ></div>
         
 
     <div id="health-sidebar" style="
         position: fixed; 
         top: 10px; 
         left: 50px; 
-        width: 350px; 
-        height: 80%; 
-        background: rgba(255, 255, 255, 0.9); 
+        width: 380px; 
+        height: 85%; 
+        background: rgba(255, 255, 255, 0.95); 
         z-index: 1000; 
         overflow-y: auto; 
         padding: 15px; 
-        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
         border-radius: 8px;
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     ">
-        <h2 style="margin-top: 0;">🌿 Crop Health Report</h2>
+        <h2 style="margin-top: 0; color: #2e7d32;">🌿 Crop Health Report</h2>
+        
+        <div style="margin-bottom: 20px; text-align: center;">
+            <h4 style="margin-bottom: 5px;">NDVI Analysis Plot</h4>
+            <img src="ndvi_plot.png" alt="NDVI Plot" style="width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+
         <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
             <thead>
-                <tr style="background: #eee;">
-                    <th style="border: 1px solid #ccc; padding: 4px;">Zone</th>
-                    <th style="border: 1px solid #ccc; padding: 4px;">NDVI</th>
-                    <th style="border: 1px solid #ccc; padding: 4px;">Health</th>
-                    <th style="border: 1px solid #ccc; padding: 4px;">Suggestions</th>
+                <tr style="background: #2e7d32; color: white;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">Zone</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">NDVI</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Health</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Suggestions</th>
                 </tr>
             </thead>
             <tbody>
                 
         <tr class="Good">
             <td>(0,0)</td>
-            <td>0.526</td>
+            <td>0.558</td>
             <td>Good</td>
             <td><ul><li>✅ Maintain current practices.</li><li>🌾 Apply precision fertilizer.</li><li>📅 Plan harvest based on NDVI trends.</li></ul></td>
         </tr>
@@ -116,29 +122,51 @@
             </tbody>
         </table>
         <style>
-            .Bad { background-color: #ffd6d6; }
-            .Moderate { background-color: #fff5cc; }
-            .Good { background-color: #d6ffd6; }
+            .Bad { background-color: #ffd6d6; color: #b71c1c; }
+            .Moderate { background-color: #fff5cc; color: #f57f17; }
+            .Good { background-color: #d6ffd6; color: #1b5e20; }
+            #health-sidebar::-webkit-scrollbar { width: 8px; }
+            #health-sidebar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
         </style>
         <button onclick="document.getElementById('health-sidebar').style.display='none'" style="
-            margin-top: 10px;
-            padding: 5px 10px;
-            background: #f44336;
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: #d32f2f;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-        ">Close Sidebar</button>
+            font-weight: bold;
+        ">Close Dashboard</button>
     </div>
+    
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var checkMap = setInterval(function() {
+                if (window['map_e21899c942b5c46308b0c3d07b87da9e']) {
+                    clearInterval(checkMap);
+                    var theMap = window['map_e21899c942b5c46308b0c3d07b87da9e'];
+                    var smiLayer = L.imageOverlay(
+                        'smi_overlay.png',
+                        [[18.649277, 73.889302], [18.649959, 73.890053]],
+                        { opacity: 0.7, interactive: true }
+                    );
+                    smiLayer.addTo(theMap);
+                }
+            }, 100);
+        });
+    </script>
     
 </body>
 <script>
     
     
-            var map_7ceafd19b92b8818d4d9556c8067cdd7 = L.map(
-                "map_7ceafd19b92b8818d4d9556c8067cdd7",
+            var map_e21899c942b5c46308b0c3d07b87da9e = L.map(
+                "map_e21899c942b5c46308b0c3d07b87da9e",
                 {
-                    center: [23.725471, 73.87645549999999],
+                    center: [18.649618, 73.8896775],
                     crs: L.CRS.EPSG3857,
                     ...{
   "zoom": 14,
@@ -153,7 +181,7 @@
 
         
     
-            var tile_layer_e1c922703ae8e385d7020dbdefda4843 = L.tileLayer(
+            var tile_layer_8d8cb163bbb64ceef6c907fe988a4f7d = L.tileLayer(
                 "https://mt1.google.com/vt/lyrs=y\u0026x={x}\u0026y={y}\u0026z={z}",
                 {
   "minZoom": 0,
@@ -170,12 +198,12 @@
             );
         
     
-            tile_layer_e1c922703ae8e385d7020dbdefda4843.addTo(map_7ceafd19b92b8818d4d9556c8067cdd7);
+            tile_layer_8d8cb163bbb64ceef6c907fe988a4f7d.addTo(map_e21899c942b5c46308b0c3d07b87da9e);
         
     
-            var image_overlay_92cff9a05be866961da32a4998826d89 = L.imageOverlay(
-                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAACCAYAAAB7Xa1eAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuMSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/bCgiHAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAAPUlEQVR4nAEyAM3/Ae1ePP8QVCkA+tfqAPHM6QAQNhkArXXVAALoj0wAWgP6AB8I/QAbGAEACN3mAPjVQwAHIxMbQCqC5wAAAABJRU5ErkJggg==",
-                [[23.725359, 73.876175], [23.725583, 73.876736]],
+            var image_overlay_5f2247d84ee0cfae2ad02b7a3b542a6f = L.imageOverlay(
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAHCAYAAAA1WQxeAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuMSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/bCgiHAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAA40lEQVR4nCXMu0rDUACA4T/pOSRNY4XSglLBFi9Ih0Jx6aZjZyd9AF/GJxCcfQJ1EnTv4CYq0gtoSCskmsYmbdLkOPg9wKdds6/Oxufc5S4b1jr9qcvxVoO6vUP520c0G/BRsXHGEY+fM64eRuhiQK/zQqtqINon27wvPOq2xc3gi8iLULnC2V0ymSfoxdNDnn2HIIl5moRkaY4wBW9uSMUUiGlrj8vbe5JM4Q99NA1kUZLGKaOfBXq8+iVYrijoYKwZSEtSqpXoHtRwvAhhyTIXR02GQcjrpo1Z0Oi7czL1P/4BbPhbesHpDrYAAAAASUVORK5CYII=",
+                [[18.649277, 73.889302], [18.649959, 73.890053]],
                 {
   "opacity": 0.7,
   "interactive": true,
@@ -183,26 +211,26 @@
             );
         
     
-            image_overlay_92cff9a05be866961da32a4998826d89.addTo(map_7ceafd19b92b8818d4d9556c8067cdd7);
+            image_overlay_5f2247d84ee0cfae2ad02b7a3b542a6f.addTo(map_e21899c942b5c46308b0c3d07b87da9e);
         
     
-            var layer_control_ef022519b78ada0c88db16b17dbf65ee_layers = {
+            var layer_control_b0969a055cf5a087f746f1629966da04_layers = {
                 base_layers : {
-                    "https://mt1.google.com/vt/lyrs=y\u0026x={x}\u0026y={y}\u0026z={z}" : tile_layer_e1c922703ae8e385d7020dbdefda4843,
+                    "https://mt1.google.com/vt/lyrs=y\u0026x={x}\u0026y={y}\u0026z={z}" : tile_layer_8d8cb163bbb64ceef6c907fe988a4f7d,
                 },
                 overlays :  {
-                    "NDVI Layer" : image_overlay_92cff9a05be866961da32a4998826d89,
+                    "NDVI Layer" : image_overlay_5f2247d84ee0cfae2ad02b7a3b542a6f,
                 },
             };
-            let layer_control_ef022519b78ada0c88db16b17dbf65ee = L.control.layers(
-                layer_control_ef022519b78ada0c88db16b17dbf65ee_layers.base_layers,
-                layer_control_ef022519b78ada0c88db16b17dbf65ee_layers.overlays,
+            let layer_control_b0969a055cf5a087f746f1629966da04 = L.control.layers(
+                layer_control_b0969a055cf5a087f746f1629966da04_layers.base_layers,
+                layer_control_b0969a055cf5a087f746f1629966da04_layers.overlays,
                 {
   "position": "topright",
   "collapsed": true,
   "autoZIndex": true,
 }
-            ).addTo(map_7ceafd19b92b8818d4d9556c8067cdd7);
+            ).addTo(map_e21899c942b5c46308b0c3d07b87da9e);
 
         
 </script>
