@@ -33,13 +33,16 @@ def inject_smi_into_map(png_path, bounds, map_path="interactive_map.html"):
     with open(map_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Find the folium map ID
+    # Find the folium map ID and layer control ID
     import re
     map_id_match = re.search(r'var (map_[a-z0-9]+) = L.map', content)
+    layer_control_match = re.search(r'let (layer_control_[a-z0-9]+) = L.control.layers', content)
+    
     if not map_id_match:
         print("❌ Error: Could not find map ID in HTML.")
         return
     map_id = map_id_match.group(1)
+    lc_id = layer_control_match.group(1) if layer_control_match else None
 
     smi_script = f"""
     <script>
@@ -54,11 +57,19 @@ def inject_smi_into_map(png_path, bounds, map_path="interactive_map.html"):
                         {{ opacity: 0.7, interactive: true }}
                     );
                     smiLayer.addTo(theMap);
+                    
+                    // Add to layer control if it exists
+                    if (window['{lc_id}']) {{
+                        window['{lc_id}'].addOverlay(smiLayer, "SMI Layer");
+                    }} else if (typeof {lc_id} !== 'undefined') {{
+                        {lc_id}.addOverlay(smiLayer, "SMI Layer");
+                    }}
                 }}
             }}, 100);
         }});
     </script>
     """
+
 
     if "</body>" in content:
         # Avoid duplicate SMI layers

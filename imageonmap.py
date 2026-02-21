@@ -35,7 +35,7 @@ print("🗺️ Injecting NDVI overlay into interactive_map.html...")
 # Folium expects [[south, west], [north, east]]
 overlay_bounds = [[bounds.bottom, bounds.left], [bounds.top, bounds.right]]
 
-# Create a map centered at AOI (re-creating it to ensure layout)
+# Create a map centered at AOI
 m = folium.Map(
     location=[(bounds.bottom + bounds.top) / 2, (bounds.left + bounds.right) / 2],
     zoom_start=14,
@@ -43,8 +43,23 @@ m = folium.Map(
     attr="Google Hybrid"
 )
 
-# Re-add Search Bar logic if it was in the original (or assume we want it here too)
-# Fetching original geocoder scripts from a local reference or simple re-add
+# Automatically zoom to the area
+m.fit_bounds(overlay_bounds)
+
+# Add AOI Selection Area for visibility
+aoi_path = "aoi.geojson"
+if os.path.exists(aoi_path):
+    folium.GeoJson(
+        aoi_path,
+        name="Selection Area",
+        style_function=lambda x: {
+            "fillColor": "none",
+            "color": "red",
+            "weight": 2,
+        },
+    ).add_to(m)
+
+# Re-add Search Bar logic
 geocoder_css = Element('<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />')
 geocoder_js = Element('<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>')
 m.get_root().header.add_child(geocoder_css)
@@ -92,7 +107,8 @@ folium.LayerControl().add_to(m)
 map_filename = "interactive_map.html"
 m.save(map_filename)
 
-print(f"✅ interactive_map.html updated with NDVI overlay.")
+print(f"✅ interactive_map.html updated with NDVI overlay and fit to bounds.")
+
 print(f"Bounding Box: {bounds}")
 
 
