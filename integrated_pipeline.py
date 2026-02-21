@@ -46,12 +46,28 @@ def run_smi_processor():
     subprocess.run(["python", "smi_processor.py"])
     print("✅ SMI overlay PNG created.")
 
+def update_status(status):
+    with open("status.js", "w") as f:
+        f.write(f'window.satelliteProcessingStatus = "{status}";')
+
 if __name__ == "__main__":
     print("\n🔄 === Integrated Satellite Workflow Starting ===\n")
+    update_status("processing")
+    
     run_generate_map()
     run_process_satellite_data()
     run_imageonmap()
     run_ndvi_health_predictor()
     run_download_sentinel1_sar()
     run_smi_processor()
+    
     print("\n🎉 Workflow complete. All outputs generated.\n")
+    
+    # Update status to complete so the map tab can refresh
+    update_status("complete")
+    
+    print("🌍 Dashboard updated in-place (if open).")
+    print("✅ Process finished.")
+
+
+

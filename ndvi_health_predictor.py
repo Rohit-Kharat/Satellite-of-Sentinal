@@ -8,7 +8,8 @@ from sklearn.metrics import classification_report
 import glob
 import os
 import rasterio
-import webbrowser
+import folium
+from branca.element import Element
 
 def generate_training_data(samples=300):
     np.random.seed(42)
@@ -61,20 +62,12 @@ def get_suggestions(label):
             "📅 Plan harvest based on NDVI trends."
         ]
 
-
 def load_ndvi_image(image_path):
     img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        raise FileNotFoundError(f"Could not load image at {image_path}")
     ndvi = img / 255.0  
     return ndvi
-def convert_tif_to_png(ndvi_tif):
-    ndvi_png = os.path.splitext(ndvi_tif)[0] + ".png"
-    with rasterio.open(ndvi_tif) as src:
-        ndvi_data = src.read(1).astype(np.float32)
-        ndvi_normalized = ((ndvi_data - np.nanmin(ndvi_data)) /
-                           (np.nanmax(ndvi_data) - np.nanmin(ndvi_data)) * 255).astype(np.uint8)
-    plt.imsave(ndvi_png, ndvi_normalized, cmap="RdYlGn")
-    print(f"🖼️ Converted '{ndvi_tif}' to PNG: {ndvi_png}")
-    return ndvi_png
 
 def analyze_zones(ndvi_array, model, zone_size=10):
     h, w = ndvi_array.shape
@@ -107,7 +100,84 @@ def analyze_zones(ndvi_array, model, zone_size=10):
 
     return results
 
+def inject_report_into_map(results, map_path="interactive_map.html"):
+    print(f"📊 Injecting health report into {map_path}...")
+    
+    # Generate HTML for the sidebar
+    rows = ""
+    for r in results:
+        suggestions_html = "".join(f"<li>{s}</li>" for s in r['suggestions'])
+        rows += f"""
+        <tr class="{r['health']}">
+            <td>{r['zone']}</td>
+            <td>{r['avg_ndvi']}</td>
+            <td>{r['health']}</td>
+            <td><ul>{suggestions_html}</ul></td>
+        </tr>
+        """
 
+    sidebar_html = f"""
+    <div id="health-sidebar" style="
+        position: fixed; 
+        top: 10px; 
+        left: 50px; 
+        width: 350px; 
+        height: 80%; 
+        background: rgba(255, 255, 255, 0.9); 
+        z-index: 1000; 
+        overflow-y: auto; 
+        padding: 15px; 
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+    ">
+        <h2 style="margin-top: 0;">🌿 Crop Health Report</h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+                <tr style="background: #eee;">
+                    <th style="border: 1px solid #ccc; padding: 4px;">Zone</th>
+                    <th style="border: 1px solid #ccc; padding: 4px;">NDVI</th>
+                    <th style="border: 1px solid #ccc; padding: 4px;">Health</th>
+                    <th style="border: 1px solid #ccc; padding: 4px;">Suggestions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows}
+            </tbody>
+        </table>
+        <style>
+            .Bad {{ background-color: #ffd6d6; }}
+            .Moderate {{ background-color: #fff5cc; }}
+            .Good {{ background-color: #d6ffd6; }}
+        </style>
+        <button onclick="document.getElementById('health-sidebar').style.display='none'" style="
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        ">Close Sidebar</button>
+    </div>
+    """
+
+    # We can't easily use Folium here since the file is already saved as HTML
+    # We will manually inject the HTML before the </body> tag
+    if not os.path.exists(map_path):
+        print(f"⚠️ Warning: {map_path} not found. Skipping injection.")
+        return
+
+    with open(map_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    if "</body>" in content:
+        new_content = content.replace("</body>", sidebar_html + "\n</body>")
+        with open(map_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        print(f"✅ Health report injected into {map_path}")
+    else:
+        print("❌ Error: Could not find </body> tag in HTML.")
 
 def run_pipeline(image_path):
     print("📥 Loading image and training model...")
@@ -115,84 +185,23 @@ def run_pipeline(image_path):
     ndvi = load_ndvi_image(image_path)
     results = analyze_zones(ndvi, model)
 
-    # Generate HTML report
-    html_content = f"""
-    <html>
-    <head>
-        <title>Crop Health Report</title>
-        <style>
-            body {{ font-family: Arial; padding: 20px; }}
-            table {{ border-collapse: collapse; width: 100%; }}
-            th, td {{ border: 1px solid #ccc; padding: 8px; text-align: left; }}
-            th {{ background-color: #f2f2f2; }}
-            .Bad {{ background-color: #ffd6d6; }}
-            .Moderate {{ background-color: #fff5cc; }}
-            .Good {{ background-color: #d6ffd6; }}
-        </style>
-    </head>
-    <body>
-        <h1>🌿 Zone-wise Crop Health Report</h1>
-        <img src="{image_path}" alt="NDVI Map" width="600">
-        <table>
-            <tr>
-                <th>Zone</th>
-                <th>NDVI</th>
-                <th>Soil Moisture</th>
-                <th>Rainfall</th>
-                <th>Health</th>
-                <th>Suggestions</th>
-            </tr>
-    """
+    # Instead of generating a new report, inject into interactive_map.html
+    inject_report_into_map(results)
 
-    for r in results:
-        html_content += f"""
-        <tr class="{r['health']}">
-            <td>{r['zone']}</td>
-            <td>{r['avg_ndvi']}</td>
-            <td>{r['soil_moisture']}</td>
-            <td>{r['rainfall']} mm</td>
-            <td>{r['health']}</td>
-            <td>
-                <ul>
-                    {''.join(f"<li>{s}</li>" for s in r['suggestions'])}
-                </ul>
-            </td>
-        </tr>
-        """
-
-    html_content += """
-        </table>
-    </body>
-    </html>
-    """
-
-    report_path = "crop_health_report.html"
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
-
-    print(f"\n✅ HTML report generated: {report_path}")
-    webbrowser.open(report_path)
-
-
-
-
-    print("\n📊 Zone-wise Crop Health & Suggestions:\n")
-    for r in results:
-        print(f"📍 Zone {r['zone']} | NDVI: {r['avg_ndvi']} | Health: {r['health']}")
-        for s in r['suggestions']:
-            print(f"   - {s}")
-        print()
-
-    plt.imshow(ndvi, cmap='YlGn')
-    plt.title("NDVI Map")
-    plt.colorbar(label="NDVI")
-    plt.show()
+    print("\n📊 Zone-wise Crop Health Prediction complete.")
 
 if __name__ == "__main__":
     tif_files = sorted(glob.glob("ndvi_*.tif"), reverse=True)
     if not tif_files:
-        raise FileNotFoundError("❌ No NDVI .tif files found in the current directory.")
+        print("❌ No NDVI .tif files found in the current directory.")
+        exit()
 
     latest_tif = tif_files[0]
-    image_path = convert_tif_to_png(latest_tif) 
-    run_pipeline(image_path)
+    # In this new flow, we assume imageonmap.py already created the PNG for the latest TIF
+    latest_png = os.path.splitext(latest_tif)[0] + ".png"
+    if not os.path.exists(latest_png):
+        print(f"⚠️ PNG not found for {latest_tif}. Please run imageonmap.py first.")
+        # Fallback or run conversion logic
+    
+    run_pipeline(latest_png)
+

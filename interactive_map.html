@@ -27,7 +27,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_4c83d6883dfcf17804243ff7559a5d87 {
+                #map_7ceafd19b92b8818d4d9556c8067cdd7 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -37,27 +37,19 @@
                 .leaflet-container { font-size: 1rem; }
             </style>
         
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css"/>
     
-            <style>
-                #export {
-                    position: absolute;
-                    top: 5px;
-                    right: 10px;
-                    z-index: 999;
-                    background: white;
-                    color: black;
-                    padding: 6px;
-                    border-radius: 4px;
-                    font-family: 'Helvetica Neue';
-                    cursor: pointer;
-                    font-size: 12px;
-                    text-decoration: none;
-                    top: 90px;
-                }
-            </style>
-        
+                <style>
+                    .leaflet-image-layer {
+                        /* old android/safari*/
+                        image-rendering: -webkit-optimize-contrast;
+                        image-rendering: crisp-edges; /* safari */
+                        image-rendering: pixelated; /* chrome */
+                        image-rendering: -moz-crisp-edges; /* firefox */
+                        image-rendering: -o-crisp-edges; /* opera */
+                        -ms-interpolation-mode: nearest-neighbor; /* ie */
+                    }
+                </style>
+            
 </head>
 <body>
     
@@ -66,7 +58,6 @@
     document.addEventListener("DOMContentLoaded", function() {
         var mapEl = document.querySelector('.folium-map');
         var mapId = mapEl.id;
-        // Wait for map variable to be available
         var checkMap = setInterval(function() {
             if (window[mapId] || window['map_' + mapId]) {
                 clearInterval(checkMap);
@@ -76,38 +67,83 @@
                     position: 'topright',
                     placeholder: 'Search city or place...',
                     collapsed: false,
-                    suggest: true,
-                    suggestMinLength: 2,
-                    suggestTimeout: 250,
-                    queryMinLength: 1,
                 }).on('markgeocode', function(e) {
                     var bbox = e.geocode.bbox;
                     theMap.fitBounds(bbox);
-                    L.marker(e.geocode.center).addTo(theMap)
-                        .bindPopup(e.geocode.name).openPopup();
+                    L.marker(e.geocode.center).addTo(theMap).bindPopup(e.geocode.name).openPopup();
                 }).addTo(theMap);
             }
         }, 100);
     });
 </script>
     
-            <div class="folium-map" id="map_4c83d6883dfcf17804243ff7559a5d87" ></div>
+            <div class="folium-map" id="map_7ceafd19b92b8818d4d9556c8067cdd7" ></div>
         
-    <a href='#' id='export'>Export</a>
+
+    <div id="health-sidebar" style="
+        position: fixed; 
+        top: 10px; 
+        left: 50px; 
+        width: 350px; 
+        height: 80%; 
+        background: rgba(255, 255, 255, 0.9); 
+        z-index: 1000; 
+        overflow-y: auto; 
+        padding: 15px; 
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+    ">
+        <h2 style="margin-top: 0;">🌿 Crop Health Report</h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+                <tr style="background: #eee;">
+                    <th style="border: 1px solid #ccc; padding: 4px;">Zone</th>
+                    <th style="border: 1px solid #ccc; padding: 4px;">NDVI</th>
+                    <th style="border: 1px solid #ccc; padding: 4px;">Health</th>
+                    <th style="border: 1px solid #ccc; padding: 4px;">Suggestions</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr class="Good">
+            <td>(0,0)</td>
+            <td>0.526</td>
+            <td>Good</td>
+            <td><ul><li>✅ Maintain current practices.</li><li>🌾 Apply precision fertilizer.</li><li>📅 Plan harvest based on NDVI trends.</li></ul></td>
+        </tr>
+        
+            </tbody>
+        </table>
+        <style>
+            .Bad { background-color: #ffd6d6; }
+            .Moderate { background-color: #fff5cc; }
+            .Good { background-color: #d6ffd6; }
+        </style>
+        <button onclick="document.getElementById('health-sidebar').style.display='none'" style="
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        ">Close Sidebar</button>
+    </div>
+    
 </body>
 <script>
     
     
-            var map_4c83d6883dfcf17804243ff7559a5d87 = L.map(
-                "map_4c83d6883dfcf17804243ff7559a5d87",
+            var map_7ceafd19b92b8818d4d9556c8067cdd7 = L.map(
+                "map_7ceafd19b92b8818d4d9556c8067cdd7",
                 {
-                    center: [30.0, 70.0],
+                    center: [23.725471, 73.87645549999999],
                     crs: L.CRS.EPSG3857,
                     ...{
-  "zoom": 5,
+  "zoom": 14,
   "zoomControl": true,
   "preferCanvas": false,
-  "maxNativeZoom": 20,
 }
 
                 }
@@ -117,14 +153,14 @@
 
         
     
-            var tile_layer_23d13b8040ea3480f50e9ad0096e8995 = L.tileLayer(
+            var tile_layer_e1c922703ae8e385d7020dbdefda4843 = L.tileLayer(
                 "https://mt1.google.com/vt/lyrs=y\u0026x={x}\u0026y={y}\u0026z={z}",
                 {
   "minZoom": 0,
-  "maxZoom": 20,
-  "maxNativeZoom": 20,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
   "noWrap": false,
-  "attribution": "Google",
+  "attribution": "Google Hybrid",
   "subdomains": "abc",
   "detectRetina": false,
   "tms": false,
@@ -134,51 +170,40 @@
             );
         
     
-            tile_layer_23d13b8040ea3480f50e9ad0096e8995.addTo(map_4c83d6883dfcf17804243ff7559a5d87);
+            tile_layer_e1c922703ae8e385d7020dbdefda4843.addTo(map_7ceafd19b92b8818d4d9556c8067cdd7);
         
     
-            var options = {
-              position: "topleft",
-              draw: {},
-              edit: {},
-            }
-                // FeatureGroup is to store editable layers.
-                var drawnItems_draw_control_7b26c91b6f0009260725ea22bfbad165 =
-                    new L.featureGroup().addTo(
-                        map_4c83d6883dfcf17804243ff7559a5d87
-                    );
+            var image_overlay_92cff9a05be866961da32a4998826d89 = L.imageOverlay(
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAACCAYAAAB7Xa1eAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuMSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/bCgiHAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAAPUlEQVR4nAEyAM3/Ae1ePP8QVCkA+tfqAPHM6QAQNhkArXXVAALoj0wAWgP6AB8I/QAbGAEACN3mAPjVQwAHIxMbQCqC5wAAAABJRU5ErkJggg==",
+                [[23.725359, 73.876175], [23.725583, 73.876736]],
+                {
+  "opacity": 0.7,
+  "interactive": true,
+}
+            );
+        
+    
+            image_overlay_92cff9a05be866961da32a4998826d89.addTo(map_7ceafd19b92b8818d4d9556c8067cdd7);
+        
+    
+            var layer_control_ef022519b78ada0c88db16b17dbf65ee_layers = {
+                base_layers : {
+                    "https://mt1.google.com/vt/lyrs=y\u0026x={x}\u0026y={y}\u0026z={z}" : tile_layer_e1c922703ae8e385d7020dbdefda4843,
+                },
+                overlays :  {
+                    "NDVI Layer" : image_overlay_92cff9a05be866961da32a4998826d89,
+                },
+            };
+            let layer_control_ef022519b78ada0c88db16b17dbf65ee = L.control.layers(
+                layer_control_ef022519b78ada0c88db16b17dbf65ee_layers.base_layers,
+                layer_control_ef022519b78ada0c88db16b17dbf65ee_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_7ceafd19b92b8818d4d9556c8067cdd7);
 
-            options.edit.featureGroup = drawnItems_draw_control_7b26c91b6f0009260725ea22bfbad165;
-            var draw_control_7b26c91b6f0009260725ea22bfbad165 = new L.Control.Draw(
-                options
-            ).addTo( map_4c83d6883dfcf17804243ff7559a5d87 );
-            map_4c83d6883dfcf17804243ff7559a5d87.on(L.Draw.Event.CREATED, function(e) {
-                var layer = e.layer,
-                    type = e.layerType;
-                var coords = JSON.stringify(layer.toGeoJSON());
-                layer.on('click', function() {
-                    alert(coords);
-                    console.log(coords);
-                });
-                drawnItems_draw_control_7b26c91b6f0009260725ea22bfbad165.addLayer(layer);
-            });
-            map_4c83d6883dfcf17804243ff7559a5d87.on('draw:created', function(e) {
-                drawnItems_draw_control_7b26c91b6f0009260725ea22bfbad165.addLayer(e.layer);
-            });
-
-            
-            document.getElementById('export').onclick = function(e) {
-                var data = drawnItems_draw_control_7b26c91b6f0009260725ea22bfbad165.toGeoJSON();
-                var convertedData = 'text/json;charset=utf-8,'
-                    + encodeURIComponent(JSON.stringify(data));
-                document.getElementById('export').setAttribute(
-                    'href', 'data:' + convertedData
-                );
-                document.getElementById('export').setAttribute(
-                    'download', "aoi.geojson"
-                );
-            }
-            
         
 </script>
 </html>

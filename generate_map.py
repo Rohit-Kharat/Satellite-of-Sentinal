@@ -54,7 +54,36 @@ m.get_root().html.add_child(geocoder_init)
 draw = Draw(export=True, filename="aoi.geojson")
 draw.add_to(m)
 
+# Add Live-Reload Polling Script
+live_reload_js = Element("""
+<script>
+    window.satelliteProcessingStatus = "pending";
+    function checkStatus() {
+        var script = document.createElement("script");
+        // Add timestamp to bypass cache
+        script.src = "status.js?t=" + new Date().getTime();
+        script.onload = function() {
+            console.log("Status check:", window.satelliteProcessingStatus);
+            if (window.satelliteProcessingStatus === "complete") {
+                console.log("Processing complete! Reloading...");
+                location.reload();
+            }
+            document.body.removeChild(script);
+        };
+        script.onerror = function() {
+            // If file doesn't exist yet, just wait
+            if (document.body.contains(script)) document.body.removeChild(script);
+        };
+        document.body.appendChild(script);
+    }
+    // Poll every 2 seconds
+    setInterval(checkStatus, 2000);
+</script>
+""")
+m.get_root().html.add_child(live_reload_js)
+
 # Save map as an HTML file
 m.save("interactive_map.html")
 
 print("Open 'interactive_map.html' in a browser, draw AOI, and download 'aoi.geojson'.")
+

@@ -95,9 +95,15 @@ except Exception as e:
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 ndvi_filename = f"ndvi_{timestamp}.tif"
 
+# Define transform and CRS for georeferencing
+from rasterio.transform import from_bounds
+transform = from_bounds(bounds[0], bounds[1], bounds[2], bounds[3], image.shape[1], image.shape[0])
+
 with rasterio.open(ndvi_filename, "w", driver="GTiff",
                    height=image.shape[0], width=image.shape[1],
-                   count=1, dtype=np.float32) as dst:
+                   count=1, dtype=np.float32,
+                   crs="EPSG:4326", transform=transform) as dst:
     dst.write(image, 1)
 
-print(f"✅ NDVI saved as {ndvi_filename}")
+print(f"✅ NDVI saved as {ndvi_filename} (Georeferenced)")
+
