@@ -63,7 +63,7 @@ if __name__ == "__main__":
     
     print("\n🎉 Workflow complete. All outputs generated.\n")
     
-    # Update status to complete so the map tab can refresh
+   
     update_status("complete")
     
     print("🌍 Dashboard updated in-place (if open).")
