@@ -33,7 +33,7 @@ def inject_smi_into_map(png_path, bounds, map_path="interactive_map.html"):
     with open(map_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Find the folium map ID and layer control ID
+    
     import re
     map_id_match = re.search(r'var (map_[a-z0-9]+) = L.map', content)
     layer_control_match = re.search(r'let (layer_control_[a-z0-9]+) = L.control.layers', content)
