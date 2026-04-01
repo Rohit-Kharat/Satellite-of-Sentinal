@@ -7,7 +7,7 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-# Routes to serve GeoTIFF files
+
 @app.route("/ndvi")
 def get_ndvi():
     return send_file("ndvi.tif", mimetype="image/tiff")
