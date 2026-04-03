@@ -1,4 +1,4 @@
-# move_aoi.py
+
 import os
 import time
 import shutil
