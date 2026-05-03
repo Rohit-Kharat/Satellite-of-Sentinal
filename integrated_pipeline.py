@@ -14,6 +14,7 @@ def run_generate_map():
     print("🔍 Waiting for 'aoi.geojson' to be created...")
 
     try:
+        # making move_aoi_download file to grab the coordinates
         # ✅ Use move_aoi_from_downloads to handle file waiting and moving
         move_aoi_from_downloads()
         print("✅ AOI file moved and ready.")
