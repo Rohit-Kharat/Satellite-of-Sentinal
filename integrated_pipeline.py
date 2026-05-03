@@ -26,7 +26,7 @@ def run_process_satellite_data():
     print("🛰️ Step 2: Running satellite data processing for NDVI...")
     subprocess.run(["python", "process_satellite_data.py"])
     print("✅ NDVI .tif file generated.")
-
+#using the .tif file converted to png to easy access of data in PNG form
 def run_imageonmap():
     print("🖼️ Step 3: Converting NDVI .tif to PNG...")
     subprocess.run(["python", "imageonmap.py"])
