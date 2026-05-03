@@ -21,7 +21,7 @@ def run_generate_map():
     except Exception as e:
         print(f"❌ Error handling AOI: {e}")
         exit()
-
+#processing the satellite data and sending the data to sentinal 
 def run_process_satellite_data():
     print("🛰️ Step 2: Running satellite data processing for NDVI...")
     subprocess.run(["python", "process_satellite_data.py"])
